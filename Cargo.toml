@@ -1,0 +1,29 @@
+[package]
+name = "share-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+# Web Application
+axum = "^0.5"
+
+# Serialize
+serde = { version ="^1.0", features = ["derive"] }
+serde_json = "1"
+
+# Async
+tokio = { version = "^1.21", features = ["macros", "rt-multi-thread", "signal"] }
+
+# Error Handler
+thiserror = "^1.0"
+anyhow = "^1.0"
+
+# Log system
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+
+# Misc
+once_cell = "^1.13"
+dotenv = "0.15.0"
