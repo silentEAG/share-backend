@@ -1,23 +1,47 @@
-use std::net::SocketAddr;
-
-use axum::{routing::get, Router};
+use axum::Extension;
 use config::ConfigBuilder;
 use dotenv::dotenv;
+use migration::{Migrator, MigratorTrait};
+use model::s3::SharkS3Client;
 use once_cell::sync::Lazy;
+use rusoto_s3::{S3Client, S3};
+use sea_orm::{ConnectOptions, Database};
+use std::{net::SocketAddr, time::Duration};
 use tokio::{join, time::Instant};
+use tower::ServiceBuilder;
+use tracing::log;
 use tracing_appender::{non_blocking, rolling};
 use tracing_subscriber::{prelude::__tracing_subscriber_SubscriberExt, util::SubscriberInitExt};
+
+use crate::router::router as app;
 
 mod common;
 mod config;
 mod error;
+mod model;
 mod router;
+mod util;
 
 pub type Result<T> = std::result::Result<T, crate::error::ServerError>;
 
 static CONFIG: Lazy<config::ConfigItems> = Lazy::new(|| {
     let builder = ConfigBuilder::default().add_env();
     builder.build()
+});
+
+static S3: Lazy<SharkS3Client> = Lazy::new(|| {
+    let access_key = CONFIG.s3_access_key();
+    let secret_key = CONFIG.s3_secret_key();
+    let cred = rusoto_credential::StaticProvider::new_minimal(access_key, secret_key);
+    let client = rusoto_core::request::HttpClient::new().unwrap();
+    let region = rusoto_signature::Region::Custom {
+        name: "eu-east-1".to_string(),
+        endpoint: CONFIG.s3_endpoint(),
+    };
+    SharkS3Client::new(
+        CONFIG.s3_bucket_name(),
+        S3Client::new_with(client, cred, region),
+    )
 });
 
 #[tokio::main]
@@ -28,7 +52,7 @@ async fn main() -> Result<()> {
     // Logger subscribe
     // TODO: Make a LogWriter for more features such as filtering ansi
     // Generate none blocking logger in file
-    let file_appender = rolling::daily("logs", CONFIG.log_file_name());
+    let file_appender = rolling::daily(CONFIG.log_file_dir(), CONFIG.log_file_name());
     let (none_blocking_file_appender, _guard) = non_blocking(file_appender);
     let (none_blocking_std_appender, _guard) = non_blocking(std::io::stdout());
 
@@ -47,10 +71,25 @@ async fn main() -> Result<()> {
         .init();
 
     // Make sure config loading is right
-    tracing::debug!("\nShark Share Config Info:{}", *CONFIG);
+    tracing::info!("\nShark Share Config Info:{}", *CONFIG);
+
+    let opt = ConnectOptions::new(CONFIG.database_url())
+        .max_connections(CONFIG.database_max_connections())
+        .min_connections(10)
+        .connect_timeout(Duration::from_secs(10))
+        .idle_timeout(Duration::from_secs(10))
+        .max_lifetime(Duration::from_secs(10))
+        .sqlx_logging(CONFIG.app_mode() == *"dev")
+        .sqlx_logging_level(log::LevelFilter::Debug)
+        .to_owned();
+
+    let conn = Database::connect(opt).await?;
+    Migrator::up(&conn, None).await.unwrap();
 
     // Set router
-    let app = Router::new().route("/", get(crate::router::pong::handler));
+    let app = app()
+        .await
+        .layer(ServiceBuilder::new().layer(Extension(conn)));
 
     // Prepare to start
     let addr = SocketAddr::from(([127, 0, 0, 1], CONFIG.app_port()));
@@ -68,10 +107,6 @@ async fn main() -> Result<()> {
     }
     Ok(())
 }
-
-// async fn app() -> Result<Router> {
-
-// }
 
 /// Receive shutdown signel
 async fn shutdown_signel() {
@@ -101,4 +136,30 @@ async fn shutdown_signel() {
 // TODO: Can do something there before shutdown : )
 fn work_before_shutdown() {
     tracing::info!("Going to shutdown...");
+}
+
+#[tokio::test]
+async fn test() -> crate::Result<()> {
+    use std::fs::File;
+    use std::io::{Read, Write};
+
+    let filename = "./cpp.gif";
+    let time = Instant::now();
+    let mut f = File::open(filename).expect("no file found");
+    let metadata = std::fs::metadata(filename).expect("unable to read metadata");
+    let mut buffer = vec![0; metadata.len() as usize];
+    let _ = f.read(&mut buffer).expect("buffer overflow");
+
+    S3.put_object(
+        metadata.len() as i64,
+        "new/SilentEe.gif".to_string(),
+        buffer,
+    )
+    .await?;
+    let buf = S3.get_object("new/SilentEe.gif".to_string()).await?;
+
+    let mut ff = std::fs::File::create("./ree.gif").unwrap();
+    ff.write_all(&buf).unwrap();
+    println!("{}ms", time.elapsed().as_millis());
+    Ok(())
 }

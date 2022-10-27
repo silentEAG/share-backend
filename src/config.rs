@@ -192,16 +192,28 @@ macro_rules! generate_config {
 }
 
 generate_config! {
+    /// App mode.
+    app_mode: String, true, def, "dev".to_string();
     /// App port export.
     app_port: u16, true, def, 3000_u16;
     /// App domain.
     app_domain: String, true, def, "127.0.0.1".to_string();
     /// Database url.
-    db_url: String, true, def, "postgres://postgres:root@localhost/shark_collection".to_string();
+    database_url: String, true, def, "postgres://postgres:root@localhost/shark_share".to_string();
     /// Database max connections.
-    db_max_connections: u32, true, def, 25_u32;
+    database_max_connections: u32, true, def, 25_u32;
     /// Log file name.
     log_file_name: String, true, def, "server.log".to_string();
     /// Log level.
     log_level: String, true, def, "INFO".to_string();
+    /// Log file dir.
+    log_file_dir: String, true, def, "logs".to_string();
+    /// S3 endpoint.
+    s3_endpoint: String, true, def, "http://localhost:9000".to_string();
+    /// S3 access_key.
+    s3_access_key: String, true, def, "AKIAIOSFODNN7EXAMPLE".to_string();
+    /// S3 secret_key.
+    s3_secret_key: String, true, def, "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string();
+    /// S3 bucket_name.
+    s3_bucket_name: String, true, def, "testier832uwfnuiwehfiowjef8q3hfw3f".to_string();
 }

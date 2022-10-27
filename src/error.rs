@@ -11,6 +11,8 @@ use thiserror::Error;
 pub enum ServerError {
     #[error(transparent)]
     IO(#[from] std::io::Error),
+    #[error(transparent)]
+    Db(#[from] sea_orm::error::DbErr),
     #[error("Error with message: `{0}`")]
     OtherWithMessage(String),
     #[error(transparent)]
