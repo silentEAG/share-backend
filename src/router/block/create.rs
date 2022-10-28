@@ -56,7 +56,7 @@ pub async fn handler(
 
     // TODO: verify data
 
-    let block_path = format!("{}/{}", req.block_type.to_string(), uuid);
+    let block_path = format!("{}/{uuid}", req.block_type.to_string());
 
     let block = block::ActiveModel {
         id: NotSet,
@@ -76,7 +76,7 @@ pub async fn handler(
     S3.put_object(
         "text/html".to_string(),
         0,
-        format!("{}/index", block_path),
+        format!("{block_path}/index"),
         Vec::new().into(),
     )
     .await?;

@@ -32,7 +32,7 @@ pub async fn handler(
             let data = Vec::from(file.bytes().await.unwrap());
             let uinque_obj_name = uuid::Uuid::new_v4();
             let data_len = data.len() as i64;
-            let object_key = format!("{}/{}", block.block_bucket_path, uinque_obj_name);
+            let object_key = format!("{}/{uinque_obj_name}", block.block_bucket_path);
             S3.put_object(
                 content_type.clone(),
                 data_len,

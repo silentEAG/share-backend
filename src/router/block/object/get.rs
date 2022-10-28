@@ -22,7 +22,7 @@ pub async fn handler(
     Query(params): Query<HashMap<String, String>>,
 ) -> impl IntoResponse {
     let obj_uid = params.get("obj_uid").unwrap();
-    println!("{}", obj_uid);
+    println!("{obj_uid}");
 
     let block = Block::find()
         .filter(block::Column::BlockUid.eq(block_uid.clone()))
@@ -44,7 +44,7 @@ pub async fn handler(
 
     let _ = match tokio::fs::File::open("Cargo.toml").await {
         Ok(file) => file,
-        Err(err) => return Err((StatusCode::NOT_FOUND, format!("File not found: {}", err))),
+        Err(err) => return Err((StatusCode::NOT_FOUND, format!("File not found: {err}"))),
     };
 
     let stream = ReaderStream::new(data.into_async_read());
