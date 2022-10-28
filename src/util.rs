@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use rand::{distributions::Alphanumeric, Rng};
 
 pub fn generate_unique_name(prefix: &str) -> String {

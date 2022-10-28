@@ -18,16 +18,21 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Object::ObjectName).string().not_null())
+                    .col(
+                        ColumnDef::new(Object::ObjectName)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(ColumnDef::new(Object::ObjectType).string().not_null())
-                    .col(ColumnDef::new(Object::ObjectSize).string().not_null())
+                    .col(ColumnDef::new(Object::ObjectSize).big_integer().not_null())
                     .col(
                         ColumnDef::new(Object::ObjectDescription)
                             .string()
                             .not_null(),
                     )
                     .col(ColumnDef::new(Object::ObjectBucketName).string().not_null())
-                    .col(ColumnDef::new(Object::BlockId).string().not_null())
+                    .col(ColumnDef::new(Object::BlockId).integer().not_null())
                     .to_owned(),
             )
             .await?;
@@ -60,7 +65,12 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Block::BlockType).string().not_null())
                     .col(ColumnDef::new(Block::BlockBucketPath).string().not_null())
                     .col(ColumnDef::new(Block::BlockFormat).string().not_null())
-                    .col(ColumnDef::new(Block::BlockFields).string().not_null())
+                    .col(
+                        ColumnDef::new(Block::BlockFields)
+                            .array(ColumnType::String(Some(32)))
+                            .not_null(),
+                    )
+                    .col(ColumnDef::new(Block::CreateAt).date().not_null())
                     .to_owned(),
             )
             .await
@@ -73,7 +83,9 @@ impl MigrationTrait for Migration {
 
         manager
             .drop_table(Table::drop().table(Block::Table).to_owned())
-            .await
+            .await?;
+
+        Ok(())
     }
 }
 
@@ -89,6 +101,7 @@ enum Block {
     BlockBucketPath,
     BlockFormat,
     BlockFields,
+    CreateAt,
 }
 
 #[derive(Iden)]

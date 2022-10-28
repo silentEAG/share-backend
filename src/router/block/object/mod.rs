@@ -1,7 +1,13 @@
-use axum::{routing::get, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 
-mod create;
+mod get;
+mod put;
 
 pub fn router() -> Router {
-    Router::new().route("/create", get(create::handler))
+    Router::new()
+        .route("/put", post(put::handler))
+        .route("/get", get(get::handler))
 }

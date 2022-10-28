@@ -23,6 +23,7 @@ impl IntoResponse for ServerError {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
             ServerError::IO(error) => (StatusCode::BAD_REQUEST, error.to_string()),
+            ServerError::Db(error) => (StatusCode::BAD_REQUEST, error.to_string()),
             ServerError::OtherWithMessage(m) => (StatusCode::BAD_REQUEST, m),
             _ => (
                 StatusCode::BAD_REQUEST,
@@ -33,7 +34,6 @@ impl IntoResponse for ServerError {
             "status": "error",
             "message": error_message,
         }));
-
         (status, body).into_response()
     }
 }

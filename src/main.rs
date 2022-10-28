@@ -137,29 +137,3 @@ async fn shutdown_signel() {
 fn work_before_shutdown() {
     tracing::info!("Going to shutdown...");
 }
-
-#[tokio::test]
-async fn test() -> crate::Result<()> {
-    use std::fs::File;
-    use std::io::{Read, Write};
-
-    let filename = "./cpp.gif";
-    let time = Instant::now();
-    let mut f = File::open(filename).expect("no file found");
-    let metadata = std::fs::metadata(filename).expect("unable to read metadata");
-    let mut buffer = vec![0; metadata.len() as usize];
-    let _ = f.read(&mut buffer).expect("buffer overflow");
-
-    S3.put_object(
-        metadata.len() as i64,
-        "new/SilentEe.gif".to_string(),
-        buffer,
-    )
-    .await?;
-    let buf = S3.get_object("new/SilentEe.gif".to_string()).await?;
-
-    let mut ff = std::fs::File::create("./ree.gif").unwrap();
-    ff.write_all(&buf).unwrap();
-    println!("{}ms", time.elapsed().as_millis());
-    Ok(())
-}
