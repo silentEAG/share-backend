@@ -15,6 +15,7 @@ pub struct Model {
     pub block_uid: String,
     pub block_description: String,
     pub block_type: BlockType,
+    #[serde(skip_serializing)]
     pub block_bucket_path: String,
     pub block_format: String,
     pub block_fields: Vec<String>,

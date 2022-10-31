@@ -8,8 +8,6 @@ use sea_orm::{ActiveModelTrait, ActiveValue::NotSet, DatabaseConnection, Set, Tr
 use serde::Deserialize;
 use serde_json::json;
 
-use crate::S3;
-
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum BlockType {
@@ -73,13 +71,6 @@ pub async fn handler(
     .await?;
 
     let block = block.try_into_model()?;
-    S3.put_object(
-        "text/html".to_string(),
-        0,
-        format!("{block_path}/index"),
-        Vec::new().into(),
-    )
-    .await?;
 
     Ok(Json(json!({
         "status": "ok",

@@ -216,4 +216,8 @@ generate_config! {
     s3_secret_key: String, true, def, "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY".to_string();
     /// S3 bucket_name.
     s3_bucket_name: String, true, def, "testier832uwfnuiwehfiowjef8q3hfw3f".to_string();
+    /// JWT secret.
+    jwt_secret: String, true, def, "".to_string();
+    /// App secret_key.
+    app_secret_key: String, true, def, "".to_string();
 }

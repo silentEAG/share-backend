@@ -1,7 +1,9 @@
+use crate::{error::ServerError, CONFIG};
 use rusoto_core::ByteStream;
-use rusoto_s3::{GetObjectRequest, PutObjectRequest, S3Client, StreamingBody, S3};
-
-use crate::error::ServerError;
+use rusoto_s3::{
+    Delete, DeleteObjectRequest, DeleteObjectsRequest, GetObjectRequest, ObjectIdentifier,
+    PutObjectRequest, S3Client, StreamingBody, S3,
+};
 
 pub struct SharkS3Client {
     pub bucket_name: String,
@@ -50,5 +52,35 @@ impl SharkS3Client {
         let stream = obj.body.take().unwrap();
         // let body = StreamBody::new(stream);
         Ok(stream)
+    }
+
+    pub async fn delete_object(&self, obj_key: String) -> crate::Result<()> {
+        let _ = self
+            .client
+            .delete_object(DeleteObjectRequest {
+                bucket: self.bucket_name.clone(),
+                expected_bucket_owner: Some(CONFIG.s3_access_key()),
+                key: obj_key,
+                ..Default::default()
+            })
+            .await
+            .map_err(|_| ServerError::OtherWithMessage("Failed to delete object.".to_string()))?;
+        Ok(())
+    }
+
+    pub async fn delete_objects(&self, objects: Vec<ObjectIdentifier>) -> crate::Result<()> {
+        self.client
+            .delete_objects(DeleteObjectsRequest {
+                bucket: self.bucket_name.clone(),
+                delete: Delete {
+                    objects,
+                    quiet: None,
+                },
+                expected_bucket_owner: Some(CONFIG.s3_access_key()),
+                ..Default::default()
+            })
+            .await
+            .map_err(|_| ServerError::OtherWithMessage("Failed to delete objects.".to_string()))?;
+        Ok(())
     }
 }

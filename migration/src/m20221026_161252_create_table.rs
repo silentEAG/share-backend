@@ -18,12 +18,7 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(
-                        ColumnDef::new(Object::ObjectName)
-                            .string()
-                            .not_null()
-                            .unique_key(),
-                    )
+                    .col(ColumnDef::new(Object::ObjectName).string().not_null())
                     .col(ColumnDef::new(Object::ObjectType).string().not_null())
                     .col(ColumnDef::new(Object::ObjectSize).big_integer().not_null())
                     .col(
@@ -31,7 +26,12 @@ impl MigrationTrait for Migration {
                             .string()
                             .not_null(),
                     )
-                    .col(ColumnDef::new(Object::ObjectBucketName).string().not_null())
+                    .col(
+                        ColumnDef::new(Object::ObjectBucketName)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(ColumnDef::new(Object::BlockId).integer().not_null())
                     .to_owned(),
             )

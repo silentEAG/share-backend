@@ -9,12 +9,13 @@ pub struct Model {
     #[serde(skip_serializing)]
     #[sea_orm(primary_key)]
     pub id: i32,
-    #[sea_orm(unique)]
     pub object_name: String,
     pub object_type: String,
     pub object_size: i64,
     pub object_description: String,
+    #[sea_orm(unique)]
     pub object_bucket_name: String,
+    #[serde(skip_serializing)]
     pub block_id: i32,
 }
 

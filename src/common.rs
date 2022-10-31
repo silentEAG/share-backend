@@ -45,3 +45,16 @@ pub fn read_file_string(path: &str) -> Result<String> {
 pub fn err_message(message: &str) -> error::ServerError {
     ServerError::OtherWithMessage(message.to_string())
 }
+
+pub trait UnwrapOrError<T> {
+    fn unwrap_or_error(self, error: ServerError) -> crate::Result<T>;
+}
+
+impl<T> UnwrapOrError<T> for Option<T> {
+    fn unwrap_or_error(self, error: ServerError) -> crate::Result<T> {
+        match self {
+            Some(v) => Ok(v),
+            None => Err(error),
+        }
+    }
+}

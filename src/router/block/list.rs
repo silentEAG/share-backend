@@ -13,14 +13,15 @@ pub async fn handler(
     Extension(ref conn): Extension<DatabaseConnection>,
     Query(params): Query<HashMap<String, String>>,
 ) -> crate::Result<Response> {
-    let block = Block::find()
-        .order_by_asc(block::Column::Id)
+    let blocks = Block::find()
+        // .order_by_asc(block::Column::Id)
         .all(conn)
         .await?;
     tracing::debug!("{:?}", params);
     Ok(Json(json!({
         "status": "ok",
-        "data": block
+        "block_cnt": blocks.len(),
+        "blocks": blocks
     }))
     .into_response())
 }

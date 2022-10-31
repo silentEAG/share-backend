@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use crate::S3;
+use crate::{common::UnwrapOrError, error::ServerError, S3};
 use axum::{
     body::StreamBody,
     extract::{Path, Query},
-    http::{header, StatusCode},
+    http::header,
     response::{AppendHeaders, IntoResponse},
     Extension,
 };
@@ -22,30 +22,31 @@ pub async fn handler(
     Query(params): Query<HashMap<String, String>>,
 ) -> impl IntoResponse {
     let obj_uid = params.get("obj_uid").unwrap();
-    println!("{obj_uid}");
 
     let block = Block::find()
         .filter(block::Column::BlockUid.eq(block_uid.clone()))
         .one(conn)
-        .await
-        .unwrap()
-        .unwrap();
+        .await?
+        .unwrap_or_error(ServerError::OtherWithMessage(
+            "Can't find Block.".to_string(),
+        ))?;
 
-    let object = Object::find()
+    let object = match Object::find()
         .filter(object::Column::BlockId.eq(block.id))
         .filter(object::Column::ObjectBucketName.eq(obj_uid.to_string()))
         .one(conn)
-        .await
-        .unwrap()
-        .unwrap();
+        .await?
+    {
+        Some(obj) => obj,
+        None => {
+            return Err(ServerError::OtherWithMessage(
+                "Can't find Object.".to_string(),
+            ))
+        }
+    };
 
     let obj_key = format!("{}/{}", block.block_bucket_path, object.object_bucket_name);
     let data = S3.get_object(obj_key).await.unwrap();
-
-    let _ = match tokio::fs::File::open("Cargo.toml").await {
-        Ok(file) => file,
-        Err(err) => return Err((StatusCode::NOT_FOUND, format!("File not found: {err}"))),
-    };
 
     let stream = ReaderStream::new(data.into_async_read());
 

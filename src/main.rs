@@ -75,10 +75,7 @@ async fn main() -> Result<()> {
 
     let opt = ConnectOptions::new(CONFIG.database_url())
         .max_connections(CONFIG.database_max_connections())
-        .min_connections(10)
-        .connect_timeout(Duration::from_secs(10))
-        .idle_timeout(Duration::from_secs(10))
-        .max_lifetime(Duration::from_secs(10))
+        .min_connections(5)
         .sqlx_logging(CONFIG.app_mode() == *"dev")
         .sqlx_logging_level(log::LevelFilter::Debug)
         .to_owned();
@@ -136,4 +133,9 @@ async fn shutdown_signel() {
 // TODO: Can do something there before shutdown : )
 fn work_before_shutdown() {
     tracing::info!("Going to shutdown...");
+}
+
+#[test]
+fn test() {
+    use jsonwebtoken::{Algorithm, Validation};
 }
