@@ -6,7 +6,7 @@ use model::s3::SharkS3Client;
 use once_cell::sync::Lazy;
 use rusoto_s3::{S3Client, S3};
 use sea_orm::{ConnectOptions, Database};
-use std::{net::SocketAddr, time::Duration};
+use std::net::SocketAddr;
 use tokio::{join, time::Instant};
 use tower::ServiceBuilder;
 use tracing::log;
@@ -137,5 +137,5 @@ fn work_before_shutdown() {
 
 #[test]
 fn test() {
-    use jsonwebtoken::{Algorithm, Validation};
+    
 }

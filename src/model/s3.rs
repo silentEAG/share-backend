@@ -54,6 +54,7 @@ impl SharkS3Client {
         Ok(stream)
     }
 
+    #[allow(unused)]
     pub async fn delete_object(&self, obj_key: String) -> crate::Result<()> {
         let _ = self
             .client

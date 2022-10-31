@@ -1,11 +1,7 @@
-use std::collections::HashMap;
-
-use crate::{common::UnwrapOrError, error::ServerError, S3};
+use crate::{common::UnwrapOrError, error::ServerError};
 use axum::{
-    body::StreamBody,
-    extract::{Path, Query},
-    http::header,
-    response::{AppendHeaders, IntoResponse, Response},
+    extract::Path,
+    response::{IntoResponse, Response},
     Extension, Json,
 };
 use entity::{

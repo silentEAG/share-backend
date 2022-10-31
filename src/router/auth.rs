@@ -1,5 +1,5 @@
 use axum::Json;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::CONFIG;
 

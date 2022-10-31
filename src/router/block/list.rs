@@ -5,8 +5,8 @@ use axum::{
     response::{IntoResponse, Response},
     Extension, Json,
 };
-use entity::{block, prelude::Block};
-use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
+use entity::prelude::Block;
+use sea_orm::{DatabaseConnection, EntityTrait};
 use serde_json::json;
 
 pub async fn handler(
