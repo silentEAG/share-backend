@@ -51,7 +51,7 @@ pub fn verify_data() -> bool {
 pub async fn handler(
     Json(req): Json<BlockCreate>,
     Extension(ref conn): Extension<DatabaseConnection>,
-    _: Claims
+    _: Claims,
 ) -> crate::Result<Response> {
     let uuid = uuid::Uuid::new_v4();
 

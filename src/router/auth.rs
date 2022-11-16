@@ -2,7 +2,8 @@ use axum::{
     async_trait,
     extract::{FromRequest, RequestParts},
     headers::{authorization::Bearer, Authorization},
-    Json, TypedHeader, response::{Response, IntoResponse},
+    response::{IntoResponse, Response},
+    Json, TypedHeader,
 };
 use chrono::{Duration, Utc};
 use jsonwebtoken::{decode, DecodingKey, EncodingKey, Header, Validation};
@@ -56,10 +57,7 @@ pub struct AuthPayload {
 }
 
 fn sign() -> crate::Result<String> {
-    jsonwebtoken::encode(
-        &Header::default(), 
-        &Claims::new(), 
-        &KEYS.encoding)
+    jsonwebtoken::encode(&Header::default(), &Claims::new(), &KEYS.encoding)
         .map_err(|_| ServerError::Auth("Token Create Error".into()))
 }
 

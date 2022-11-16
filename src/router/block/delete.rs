@@ -16,11 +16,11 @@ pub struct BlockDelete {
     block_uid: String,
 }
 
-use crate::{error::ServerError, S3, router::auth::Claims};
+use crate::{error::ServerError, router::auth::Claims, S3};
 pub async fn handler(
     Json(req): Json<BlockDelete>,
     Extension(ref conn): Extension<DatabaseConnection>,
-    _: Claims
+    _: Claims,
 ) -> crate::Result<Response> {
     let txn = conn.begin().await?;
 
