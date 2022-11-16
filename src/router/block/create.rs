@@ -8,6 +8,8 @@ use sea_orm::{ActiveModelTrait, ActiveValue::NotSet, DatabaseConnection, Set, Tr
 use serde::Deserialize;
 use serde_json::json;
 
+use crate::router::auth::Claims;
+
 #[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 enum BlockType {
@@ -49,6 +51,7 @@ pub fn verify_data() -> bool {
 pub async fn handler(
     Json(req): Json<BlockCreate>,
     Extension(ref conn): Extension<DatabaseConnection>,
+    _: Claims
 ) -> crate::Result<Response> {
     let uuid = uuid::Uuid::new_v4();
 

@@ -15,7 +15,7 @@ use sea_orm::{
 use serde::Deserialize;
 use serde_json::json;
 
-use crate::{common::UnwrapOrError, error::ServerError, S3};
+use crate::{common::UnwrapOrError, error::ServerError, S3, router::auth::Claims};
 
 #[derive(Deserialize)]
 pub struct ObjectDelete {
@@ -26,6 +26,7 @@ pub async fn handler(
     Json(objects): Json<ObjectDelete>,
     Path(block_uid): Path<String>,
     Extension(ref conn): Extension<DatabaseConnection>,
+    _: Claims
 ) -> crate::Result<Response> {
     let txn = conn.begin().await?;
 

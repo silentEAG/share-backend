@@ -136,6 +136,4 @@ fn work_before_shutdown() {
 }
 
 #[test]
-fn test() {
-    
-}
+fn test() {}

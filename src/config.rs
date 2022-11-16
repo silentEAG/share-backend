@@ -217,7 +217,9 @@ generate_config! {
     /// S3 bucket_name.
     s3_bucket_name: String, true, def, "testier832uwfnuiwehfiowjef8q3hfw3f".to_string();
     /// JWT secret.
-    jwt_secret: String, true, def, "".to_string();
+    jwt_secret: String, true, def, "pVYFyyCbxAL9ztNXBstgCBFZY".to_string();
+    /// JWT expired time.
+    jwt_exp_time: i64, true, def, 24;
     /// App secret_key.
-    app_secret_key: String, true, def, "".to_string();
+    app_secret_key: String, true, def, "g6e5kpwHK8oaLRuu3EMSrG6Ye".to_string();
 }

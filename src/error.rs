@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -7,12 +8,14 @@ use axum::{
 use serde_json::json;
 use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Error, Debug)]
 pub enum ServerError {
     #[error(transparent)]
     IO(#[from] std::io::Error),
     #[error(transparent)]
     Db(#[from] sea_orm::error::DbErr),
+    #[error("Auth Failed: {0}")]
+    Auth(String),
     #[error("Error with message: `{0}`")]
     OtherWithMessage(String),
     #[error(transparent)]
@@ -24,6 +27,7 @@ impl IntoResponse for ServerError {
         let (status, error_message) = match self {
             ServerError::IO(error) => (StatusCode::BAD_REQUEST, error.to_string()),
             ServerError::Db(error) => (StatusCode::BAD_REQUEST, error.to_string()),
+            ServerError::Auth(m) => (StatusCode::BAD_REQUEST, m),
             ServerError::OtherWithMessage(m) => (StatusCode::BAD_REQUEST, m),
             _ => (
                 StatusCode::BAD_REQUEST,
